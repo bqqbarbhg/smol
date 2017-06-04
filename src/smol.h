@@ -14,6 +14,7 @@ int smolPop(smol_ctx *C, const char *fmt, ...);
 int smolDrop(smol_ctx *C, int n);
 int smolArg(smol_ctx *C, int index, const char *fmt, ...);
 int smolReturn(smol_ctx *C, const char *fmt, ...);
+void smolDefGlobal(smol_ctx *C, const char *name, const char *fmt, ...);
 
 void smolCall(smol_ctx *C, int numArgs);
 
@@ -270,6 +271,21 @@ void smolCall(smol_ctx *C, int numArgs)
 	C->BP = C->SP - numArgs;
 	n->Func(C, n->Arg);
 	C->BP = bp;
+}
+
+void smolDefGlobal(smol_ctx *C, const char *name, const char *fmt, ...)
+{
+	int npush, npop;
+
+	va_list va;
+	va_start(va, fmt);
+	npush = smol_StackWrite(C, fmt, va);
+	va_end(va);
+
+	assert(npush == 1);
+	npop = smolPop(C, "G", name);
+	assert(npop == 1);
+
 }
 
 #endif
